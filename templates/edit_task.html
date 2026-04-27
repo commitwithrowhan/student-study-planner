@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Edit Task – Study Planner{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>✏️ Edit Task</h2>
+    <p>Update task details below</p>
+  </div>
+  <a href="/tasks" class="btn btn-outline">← Back to Tasks</a>
+</div>
+
+<div class="card" style="max-width:560px; padding:32px;">
+  <form method="POST" action="/edit_task/{{ task.id }}">
+    <div class="form-group">
+      <label>Task Name</label>
+      <input type="text" name="task_name" value="{{ task.task_name }}" required>
+    </div>
+    <div class="form-group">
+      <label>Subject</label>
+      <select name="subject_id" required>
+        {% for subject in subjects %}
+        <option value="{{ subject.id }}" {% if subject.id == task.subject_id %}selected{% endif %}>
+          {{ subject.subject_name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Deadline</label>
+      <input type="date" name="deadline" value="{{ task.deadline }}" required>
+    </div>
+    <div class="form-group">
+      <label>Status</label>
+      <select name="status">
+        <option value="Pending"   {% if task.status == 'Pending'   %}selected{% endif %}>⏳ Pending</option>
+        <option value="Completed" {% if task.status == 'Completed' %}selected{% endif %}>✓ Completed</option>
+      </select>
+    </div>
+    <div style="display:flex;gap:12px;margin-top:8px;">
+      <a href="/tasks" class="btn btn-outline">Cancel</a>
+      <button type="submit" class="btn btn-accent">Save Changes</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

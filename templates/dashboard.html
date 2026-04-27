@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Dashboard – Study Planner{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>Welcome back, {{ session.user_name.split()[0] }} 👋</h2>
+    <p>Here's your study overview for today</p>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+  <div class="stat-card">
+    <div class="stat-icon purple">📖</div>
+    <div class="stat-value">{{ stats.total_subjects }}</div>
+    <div class="stat-label">Total Subjects</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon blue">📋</div>
+    <div class="stat-value">{{ stats.total_tasks }}</div>
+    <div class="stat-label">Total Tasks</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon green">✅</div>
+    <div class="stat-value">{{ stats.completed_tasks }}</div>
+    <div class="stat-label">Completed</div>
+  </div>
+  <div class="stat-card">
+    <div class="stat-icon orange">⏳</div>
+    <div class="stat-value">{{ stats.pending_tasks }}</div>
+    <div class="stat-label">Pending</div>
+  </div>
+</div>
+
+<!-- Progress Bar -->
+{% if stats.total_tasks > 0 %}
+<div class="card" style="margin-bottom:24px; padding:24px;">
+  <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+    <span style="font-weight:600;font-family:var(--font-head)">Overall Progress</span>
+    <span style="color:var(--muted);font-size:13px;">
+      {{ stats.completed_tasks }} / {{ stats.total_tasks }} tasks done
+    </span>
+  </div>
+  <div style="background:var(--surface2);border-radius:20px;height:10px;overflow:hidden;">
+    <div style="
+      background:linear-gradient(90deg,var(--accent),var(--green));
+      height:100%;border-radius:20px;
+      width:{{ ((stats.completed_tasks / stats.total_tasks) * 100)|round|int }}%;
+      transition:width 1s ease;
+    "></div>
+  </div>
+</div>
+{% endif %}
+
+<!-- Recent Tasks -->
+<div class="card">
+  <div class="card-header">
+    <h3>📋 Recent Tasks</h3>
+    <a href="/tasks" class="btn btn-sm btn-outline">View All</a>
+  </div>
+  {% if stats.recent_tasks %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Subject</th>
+          <th>Deadline</th>
+          <th>Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in stats.recent_tasks %}
+        <tr>
+          <td>{{ task.task_name }}</td>
+          <td><span class="badge badge-subject">{{ task.subject_name }}</span></td>
+          <td style="color:var(--muted);">{{ task.deadline.strftime('%d %b %Y') if task.deadline else '—' }}</td>
+          <td>
+            <span class="badge {% if task.status == 'Completed' %}badge-completed{% else %}badge-pending{% endif %}">
+              {% if task.status == 'Completed' %}✓ Completed{% else %}⏳ Pending{% endif %}
+            </span>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <p>No tasks yet. <a href="/tasks">Add your first task!</a></p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

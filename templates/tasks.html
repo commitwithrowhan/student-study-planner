@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Tasks – Study Planner{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>✅ My Tasks</h2>
+    <p>Track and manage your study tasks</p>
+  </div>
+  <button class="btn btn-accent" onclick="openModal('addTaskModal')">+ Add Task</button>
+</div>
+
+<!-- Search & Filter -->
+<div class="filter-bar">
+  <input type="text" id="searchInput" placeholder="🔍 Search tasks...">
+  <select id="subjectFilter">
+    <option value="">All Subjects</option>
+    {% for subject in subjects %}
+    <option value="{{ subject.subject_name|lower }}">{{ subject.subject_name }}</option>
+    {% endfor %}
+  </select>
+</div>
+
+<div class="card">
+  {% if tasks %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Task</th>
+          <th>Subject</th>
+          <th>Deadline</th>
+          <th>Status</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for task in tasks %}
+        <tr class="task-row"
+            data-name="{{ task.task_name|lower }}"
+            data-subject="{{ task.subject_name|lower }}"
+            data-deadline="{{ task.deadline }}"
+            data-status="{{ task.status }}">
+          <td style="color:var(--muted);">{{ loop.index }}</td>
+          <td style="font-weight:500;">{{ task.task_name }}</td>
+          <td><span class="badge badge-subject">{{ task.subject_name }}</span></td>
+          <td style="color:var(--muted);">{{ task.deadline.strftime('%d %b %Y') if task.deadline else '—' }}</td>
+          <td>
+            <span class="badge task-badge {% if task.status == 'Completed' %}badge-completed{% else %}badge-pending{% endif %}">
+              {% if task.status == 'Completed' %}✓ Completed{% else %}⏳ Pending{% endif %}
+            </span>
+          </td>
+          <td>
+            <div class="actions">
+              <a href="/toggle_task/{{ task.id }}" class="btn btn-sm {% if task.status == 'Completed' %}btn-outline{% else %}btn-success{% endif %}"
+                 title="Toggle status">
+                {% if task.status == 'Completed' %}↺{% else %}✓{% endif %}
+              </a>
+              <a href="/edit_task/{{ task.id }}" class="btn btn-sm btn-outline" title="Edit">✏️</a>
+              <button class="btn btn-sm btn-danger"
+                onclick="confirmDelete('/delete_task/{{ task.id }}', 'task')"
+                title="Delete">🗑</button>
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div id="emptyState" style="display:none;">
+    <div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <p>No tasks match your search.</p>
+    </div>
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📭</div>
+    <p>No tasks yet. Click <strong>+ Add Task</strong> to get started.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Add Task Modal -->
+<div class="modal-overlay" id="addTaskModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add New Task</h3>
+      <button class="modal-close" onclick="closeModal('addTaskModal')">×</button>
+    </div>
+    <form method="POST" action="/add_task">
+      <div class="form-group">
+        <label>Task Name</label>
+        <input type="text" name="task_name" placeholder="e.g. Complete Binary Tree assignment" required>
+      </div>
+      <div class="form-group">
+        <label>Subject</label>
+        <select name="subject_id" required>
+          <option value="">Select a subject</option>
+          {% for subject in subjects %}
+          <option value="{{ subject.id }}">{{ subject.subject_name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Deadline</label>
+        <input type="date" name="deadline" required>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('addTaskModal')">Cancel</button>
+        <button type="submit" class="btn btn-accent">Add Task</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

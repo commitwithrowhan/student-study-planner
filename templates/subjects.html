@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Subjects – Study Planner{% endblock %}
+
+{% block content %}
+<div class="page-header">
+  <div>
+    <h2>📖 My Subjects</h2>
+    <p>Manage your enrolled subjects</p>
+  </div>
+  <button class="btn btn-accent" onclick="openModal('addSubjectModal')">+ Add Subject</button>
+</div>
+
+<div class="card">
+  {% if subjects %}
+  <div class="subject-list">
+    {% for subject in subjects %}
+    <div class="subject-chip" style="animation-delay:{{ loop.index0 * 0.05 }}s">
+      <div>
+        <div class="subject-name">{{ subject.subject_name }}</div>
+        <div style="font-size:12px;color:var(--muted);margin-top:3px;">ID: {{ subject.id }}</div>
+      </div>
+      <button class="btn btn-sm btn-danger"
+        onclick="confirmDelete('/delete_subject/{{ subject.id }}', 'subject')">
+        🗑
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <div class="empty-icon">📚</div>
+    <p>No subjects added yet. Click <strong>+ Add Subject</strong> to get started.</p>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Add Subject Modal -->
+<div class="modal-overlay" id="addSubjectModal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3>Add New Subject</h3>
+      <button class="modal-close" onclick="closeModal('addSubjectModal')">×</button>
+    </div>
+    <form method="POST" action="/add_subject">
+      <div class="form-group">
+        <label>Subject Name</label>
+        <input type="text" name="subject_name" placeholder="e.g. Data Structures" required>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline" onclick="closeModal('addSubjectModal')">Cancel</button>
+        <button type="submit" class="btn btn-accent">Add Subject</button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
